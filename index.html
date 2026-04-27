@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OMNI Console</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <section id="login-screen" class="login-screen">
+      <div class="login-card">
+        <p class="eyebrow">OMNI SYSTEMS</p>
+        <h1>Operator Access</h1>
+        <p class="login-copy">Static credentials only. Enter a registered symbol or admin name and its assigned passcode.</p>
+        <div id="account-picker" class="account-picker"></div>
+        <form id="login-form" class="login-form">
+          <label>
+            <span>Username</span>
+            <input id="login-username" name="username" type="text" autocomplete="username" spellcheck="false" placeholder="symbol or name">
+          </label>
+          <label>
+            <span>Passcode</span>
+            <input id="login-passcode" name="passcode" type="password" autocomplete="current-password" spellcheck="false" placeholder="passcode">
+          </label>
+          <button type="submit">Enter Console</button>
+        </form>
+        <form id="signup-form" class="signup-form">
+          <p class="panel-label">New Admin Sign Up</p>
+          <label>
+            <span>Name</span>
+            <input id="signup-name" name="name" type="text" maxlength="24" spellcheck="false" placeholder="new admin">
+          </label>
+          <label>
+            <span>Passcode</span>
+            <input id="signup-passcode" name="passcode" type="text" maxlength="24" spellcheck="false" placeholder="custom passcode">
+          </label>
+          <label>
+            <span>Role</span>
+            <select id="signup-role" name="role">
+              <option value="memory">Archivist</option>
+              <option value="curiosity">Field Operative</option>
+              <option value="sleep">Dream Stalker</option>
+              <option value="hunger">Navigator</option>
+              <option value="silence">Oversight</option>
+            </select>
+          </label>
+          <button type="submit">Create Admin</button>
+        </form>
+        <p id="login-feedback" class="login-feedback">Registered accounts: ⟲ Ϟ ⌧ ⍯ ⸮</p>
+      </div>
+    </section>
+
+    <section id="console-app" class="console-app hidden" hidden aria-hidden="true">
+      <aside class="rail">
+        <div class="rail-top">
+          <div id="profile-avatar" class="profile-avatar">⌧</div>
+          <div class="rail-meta">
+            <p id="profile-symbol" class="rail-symbol">⌧</p>
+            <p id="profile-title" class="rail-title">Archivist and Memory Wiper</p>
+          </div>
+        </div>
+
+        <nav class="rail-nav">
+          <button class="rail-button active" data-panel="inbox-panel">Inbox</button>
+          <button class="rail-button" data-panel="chats-panel">Direct Chats</button>
+          <button class="rail-button" data-panel="files-panel">Files</button>
+          <button class="rail-button" data-panel="calendar-panel">Calendar</button>
+          <button class="rail-button" data-panel="settings-panel">Settings</button>
+        </nav>
+
+        <div class="rail-status">
+          <p class="panel-label">Locus</p>
+          <p id="session-locus" class="panel-value">LOCUS 342168-59402-36695-120</p>
+          <p class="panel-label">Domain</p>
+          <p id="session-domain" class="panel-value">operations</p>
+        </div>
+      </aside>
+
+      <section class="workspace">
+        <header class="workspace-header">
+          <div>
+            <p class="eyebrow">Dream Operations</p>
+            <h2 id="greeting-title">Welcome back</h2>
+            <p id="greeting-copy" class="greeting-copy">Static authentication confirmed. Your console is ready.</p>
+          </div>
+          <div class="status-cluster">
+            <span class="status-pill">Signal Stable</span>
+            <span class="status-pill warning">Telemetry Live</span>
+          </div>
+        </header>
+
+        <section class="hero-panel">
+          <div>
+            <p class="panel-label">Active Account</p>
+            <p id="session-account" class="hero-account">none</p>
+          </div>
+          <div>
+            <p class="panel-label">Command Logic</p>
+            <p id="command-logic" class="panel-copy">Known commands trigger archive-style replies. Unknown commands are interpreted through anomaly heuristics and answered in-universe.</p>
+          </div>
+          <div>
+            <p class="panel-label">Suggested Commands</p>
+            <div id="suggestions" class="suggestions"></div>
+          </div>
+        </section>
+
+        <section class="terminal-panel">
+          <div id="terminal" class="terminal" aria-live="polite"></div>
+          <form id="command-form" class="command-form">
+            <label class="command-label" for="command-input">console://</label>
+            <input id="command-input" name="command" type="text" autocomplete="off" spellcheck="false" placeholder="enter command" disabled>
+            <button type="submit" disabled>Transmit</button>
+          </form>
+        </section>
+      </section>
+
+      <aside class="side-panel">
+        <section id="inbox-panel" class="panel-view active">
+          <div class="panel-view-header">
+            <h3>Inbox</h3>
+            <p id="inbox-summary" class="panel-small">No incoming items.</p>
+          </div>
+          <div id="inbox-preview" class="thread-list"></div>
+        </section>
+
+        <section id="chats-panel" class="panel-view">
+          <div class="panel-view-header">
+            <h3>Direct Chats</h3>
+            <p class="panel-small">Operators and message threads</p>
+          </div>
+          <div class="chat-layout">
+            <div id="chat-list" class="thread-list"></div>
+            <div id="chat-thread" class="chat-thread"></div>
+          </div>
+        </section>
+
+        <section id="calendar-panel" class="panel-view">
+          <div class="panel-view-header">
+            <h3>Calendar</h3>
+            <p id="calendar-label" class="panel-small">Operational schedule</p>
+          </div>
+          <div class="calendar-layout">
+            <div id="calendar-grid" class="calendar-grid"></div>
+            <form id="calendar-form" class="calendar-form">
+              <label>
+                <span>Day</span>
+                <input id="calendar-day-input" type="number" min="1" max="30" value="26">
+              </label>
+              <label>
+                <span>Note</span>
+                <input id="calendar-note-input" type="text" maxlength="60" placeholder="important date">
+              </label>
+              <label>
+                <span>Visibility</span>
+                <select id="calendar-scope-input">
+                  <option value="all">All admins</option>
+                  <option value="role">Current role only</option>
+                </select>
+              </label>
+              <button type="submit" class="settings-button">Add Date</button>
+            </form>
+          </div>
+        </section>
+
+        <section id="files-panel" class="panel-view">
+          <div class="panel-view-header">
+            <h3>Player Files</h3>
+            <p id="files-summary" class="panel-small">17,650 surfaced records</p>
+          </div>
+          <div class="files-layout">
+            <div class="files-controls">
+              <input id="file-search-input" type="text" placeholder="search player id or anomaly">
+            </div>
+            <div class="files-pane">
+              <div id="file-list" class="file-list"></div>
+              <div id="file-detail" class="file-detail"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="settings-panel" class="panel-view">
+          <div class="panel-view-header">
+            <h3>Settings</h3>
+            <p class="panel-small">Interface and session controls</p>
+          </div>
+          <div id="approval-group" class="settings-group">
+            <p class="panel-label">Pending Admin Requests</p>
+            <div id="approval-list" class="approval-list"></div>
+          </div>
+          <div class="settings-group">
+            <p class="panel-label">Accent Color</p>
+            <div id="accent-swatches" class="swatches"></div>
+          </div>
+          <div class="settings-group">
+            <p class="panel-label">Typing Speed</p>
+            <select id="typing-speed-input">
+              <option value="0">Instant</option>
+              <option value="45">Normal</option>
+              <option value="110">Cinematic</option>
+            </select>
+          </div>
+          <div class="settings-group">
+            <p class="panel-label">Scanline Intensity</p>
+            <select id="scanline-input">
+              <option value="0.02">Low</option>
+              <option value="0.05" selected>Normal</option>
+              <option value="0.09">High</option>
+            </select>
+          </div>
+          <div class="settings-group">
+            <p class="panel-label">Terminal Density</p>
+            <select id="density-input">
+              <option value="comfortable">Comfortable</option>
+              <option value="compact">Compact</option>
+            </select>
+          </div>
+          <div class="settings-group">
+            <label class="toggle-row">
+              <span>Show Symbol Helper Labels</span>
+              <input id="symbol-helper-input" type="checkbox" checked>
+            </label>
+          </div>
+          <div class="settings-group">
+            <p class="panel-label">Session</p>
+            <button id="logout-button" class="settings-button" type="button">Log Out</button>
+          </div>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
